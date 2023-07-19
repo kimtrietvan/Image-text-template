@@ -1,0 +1,51 @@
+{
+    "name": "background",
+    "size": {
+        "height": 1200,
+        "width": 1200
+    },
+    "type": "image",
+    "url": "<string>",
+    "elements": [
+        {
+            "name": "title",
+            "type": "text",
+            "content": "<string>",
+            "position": {
+                "x": "center",
+                "y": 200
+            },
+            "font": {
+            "family": "Montserrat-Black.ttf",
+            "color": "#8C0000",
+            "size": 60
+            }
+        },
+        {
+            "name": "logo",
+            "type": "image",
+            "url": "<string>",
+            "position": {
+                "x": 200,
+                "y": 1000
+            }, 
+            "size": {
+                "height": 200,
+                "width": 200
+            }
+        },
+        {
+            "name": "product",
+            "type": "remove-background",
+            "url": "<string>",
+            "position": {
+                "x": 500,
+                "y": 500
+            },
+            "size": {
+                "width": 200,
+                "height": 200
+            }
+        }
+    ]
+}
