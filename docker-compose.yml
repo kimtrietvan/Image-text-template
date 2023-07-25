@@ -1,6 +1,6 @@
 services:
   app:
-    image: test:v1
+    image: .
     ports:
       - 80:80
       - 81:81
