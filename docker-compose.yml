@@ -1,6 +1,6 @@
 services:
   app:
-    image: .
+    build: .
     ports:
       - 80:80
       - 81:81
