@@ -12,6 +12,7 @@
             "type": "text",
             "content": "<string>",
             "position": {
+                "type": "absolute",
                 "x": "center",
                 "y": 200
             },
@@ -26,6 +27,7 @@
             "type": "image",
             "url": "<string>",
             "position": {
+                "type": "absolute",
                 "x": 200,
                 "y": 1000
             }, 
@@ -43,6 +45,7 @@
                 "y": 500
             },
             "size": {
+                "type": "absolute",
                 "width": 200,
                 "height": 200
             }
