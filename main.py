@@ -96,7 +96,7 @@ if __name__ == '__main__':
 """
 
 
-@app.get('/image.png')
+@app.get('image.png')
 def get(request: Request):
     params = request.query_params
     template = Template(params['template'])
