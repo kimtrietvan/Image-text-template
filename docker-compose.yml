@@ -4,3 +4,9 @@ services:
     ports:
       - 80:80
       - 81:81
+    volumes:
+      - data_app:/root/app
+
+
+volumes:
+  data_app:
