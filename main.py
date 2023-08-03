@@ -26,17 +26,16 @@ class Template:
 
         return x, y
     def calcXYText(self, element, content, font):
-        if element['position']['type'] == 'absolute':
-            x = element['position']['x']
-            y = element['position']['y']
-            image = Image.new(mode="RGB", size=(self.width, self.height))
-            box = ImageDraw.Draw(image)
-            _, _, w, d = box.textbbox((0, 0), content, font=font)
-            if x == 'center':
-                x = (self.width - w) / 2
-            if y == 'center':
-                y = (self.height - d) / 2
-            return x, y
+        x = element['position']['x']
+        y = element['position']['y']
+        image = Image.new(mode="RGB", size=(self.width, self.height))
+        box = ImageDraw.Draw(image)
+        _, _, w, d = box.textbbox((0, 0), content, font=font)
+        if x == 'center':
+            x = (self.width - w) / 2
+        if y == 'center':
+            y = (self.height - d) / 2
+        return x, y
 
     def render(self, kwagrs) -> Image:
         background = None
