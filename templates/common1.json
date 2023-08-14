@@ -1,0 +1,51 @@
+{
+    "name": "background",
+    "size": {
+        "height": 1200,
+        "width": 1200
+    },
+    "type": "image",
+    "url": "<string>",
+    "elements": [{
+            "name": "title",
+            "type": "text",
+            "content": "<string>",
+            "position": {
+                "x": "center",
+                "y": 150
+            },
+            "font": {
+                "family": "Montserrat-Black.ttf",
+                "color": "#8C0000",
+                "size": 60
+            }
+        },
+        {
+            "name": "domain",
+            "type": "text",
+            "content": "<string>",
+            "position": {
+                "x": "center",
+                "y": 1100
+            },
+            "font": {
+                "family": "Montserrat-Black.ttf",
+                "color": "#000000",
+                "size": 30
+            }
+        },
+        {
+            "name": "product_image",
+            "type": "remove-background",
+            "url": "<string>",
+            "position": {
+                "x": 350,
+                "y": 225
+            },
+            "size": {
+                "width": 750,
+                "height": 750
+            }
+        }
+    ]
+}

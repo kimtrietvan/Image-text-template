@@ -35,7 +35,7 @@ class Template:
             x = (self.width - w) / 2
         if y == 'center':
             y = (self.height - d) / 2
-        return x, y
+        return x, y, w, d
 
     def render(self, kwagrs) -> Image:
         background = None
@@ -47,18 +47,35 @@ class Template:
         for element in self.template['elements']:
             if element['name'] not in kwagrs:
                 raise Exception(f"Missing {element['name']}")
+            # Render text
             if element['type'] == 'text':
-                content = kwagrs[element['name']]
+                content: str = kwagrs[element['name']]
                 font = ImageFont.truetype(font='fonts/' + element['font']['family'], size=element['font']['size'])
                 draw = ImageDraw.Draw(background)
-                x, y = self.calcXYText(element=element, content=content, font=font)
-                draw.text(xy=(x, y), text=content, font=font, fill=ImageColor.getrgb(element['font']['color']))
+                x, y, w, d = self.calcXYText(element=element, content=content, font=font)
+                if w > self.width:
+                    contents = content.split(" ")
+                    index : int = -1
+                    while True:
+                        left = " ".join(contents[0:index])
+                        x, y, w, d = self.calcXYText(element=element, content=left, font=font)
+                        if w > self.width:
+                            index -= 1
+                        else:
+                            right = " ".join(contents[index:])
+                            draw.text(xy=(x, y), text=left, font=font, fill=ImageColor.getrgb(element['font']['color']))
+                            draw.text(xy=(x, y + d), text=right, font=font, fill=ImageColor.getrgb(element['font']['color']))
+                            break
+                else:
+                    draw.text(xy=(x, y), text=content, font=font, fill=ImageColor.getrgb(element['font']['color']))
+            # Render image
             if element['type'] == 'image':
                 url = kwagrs[element['name']]
                 image = Image.open(io.BytesIO(requests.get(url).content))
                 image = image.resize((element['size']['width'], element['size']['height']))
                 x, y = self.calcXY(element=element)
                 background.paste(image, (x, y))
+            # Render image with remove background
             if element['type'] == 'remove-background':
                 url = kwagrs[element['name']]
                 image = Image.open(io.BytesIO(requests.get(url).content))

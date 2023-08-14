@@ -5,8 +5,10 @@ services:
       - 80:80
       - 81:81
     volumes:
-      - data_app:/root/app
+      - template_data:/root/app/templates
+      - font_data:/root/app/fonts
 
 
 volumes:
-  data_app:
+  template_data:
+  font_data:
