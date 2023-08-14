@@ -114,12 +114,15 @@ if __name__ == '__main__':
 
 @app.get('/image.png')
 def get(request: Request):
-    params = request.query_params
-    template = Template(params['template'])
-    image = template.render(params)
-    imageByte = io.BytesIO()
-    image.save(imageByte, format='PNG')
-    return Response(imageByte.getvalue())
+    try:
+        params = request.query_params
+        template = Template(params['template'])
+        image = template.render(params)
+        imageByte = io.BytesIO()
+        image.save(imageByte, format='PNG')
+        return Response(imageByte.getvalue())
+    except Exception as e:
+        return Response(str(e))
 
 
 
