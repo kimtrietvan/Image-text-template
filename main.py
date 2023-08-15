@@ -53,7 +53,7 @@ class Template:
             # Render text
             if element['type'] == 'text':
                 if f'{element["name"]}_color' in kwagrs:
-                    element['font']['color'] = kwagrs[f'{element["name"]}_color']
+                    element['font']['color'] = '#' + kwagrs[f'{element["name"]}_color']
                 content: str = kwagrs[element['name']]
                 font = ImageFont.truetype(font='fonts/' + element['font']['family'], size=element['font']['size'])
                 draw = ImageDraw.Draw(background)
