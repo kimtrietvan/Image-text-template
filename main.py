@@ -43,12 +43,17 @@ class Template:
             raise Exception(f"Missing {self.template['name']}")
         if self.template['type'] == 'image':
             background = Image.open(io.BytesIO(requests.get(kwagrs[self.template['name']]).content))
+            print("Hello")
             background = background.resize((self.template['size']['width'], self.template['size']['height']))
+        if self.template['type'] == 'solid':
+            background = Image.new(mode='RGB', size=(self.template['size']['width'], self.template['size']['height']), color=ImageColor.getrgb(f"#{kwagrs[self.template['name']]}"))
         for element in self.template['elements']:
             if element['name'] not in kwagrs:
                 raise Exception(f"Missing {element['name']}")
             # Render text
             if element['type'] == 'text':
+                if f'{element["name"]}_color' in kwagrs:
+                    element['font']['color'] = kwagrs[f'{element["name"]}_color']
                 content: str = kwagrs[element['name']]
                 font = ImageFont.truetype(font='fonts/' + element['font']['family'], size=element['font']['size'])
                 draw = ImageDraw.Draw(background)
@@ -114,15 +119,15 @@ if __name__ == '__main__':
 
 @app.get('/image.png')
 def get(request: Request):
-    try:
+    # try:
         params = request.query_params
         template = Template(params['template'])
         image = template.render(params)
         imageByte = io.BytesIO()
         image.save(imageByte, format='PNG')
         return Response(imageByte.getvalue())
-    except Exception as e:
-        return Response(str(e))
+    # except Exception as e:
+    #     return Response(str(e))
 
 
 
