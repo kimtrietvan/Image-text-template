@@ -4,8 +4,8 @@
         "height": 1200,
         "width": 1200
     },
-    "type": "image",
-    "url": "<string>",
+    "type": "solid",
+    "color": "<string>",
     "elements": [{
             "name": "title",
             "type": "text",
