@@ -1,0 +1,33 @@
+{
+    "name": "test",
+    "size": {
+        "width": 1000,
+        "height": 1000
+    },
+    "type": "image",
+    "url": "<string>",
+    "elements": [
+    {
+        "name": "title",
+        "type": "image",
+        "url": "<string>",
+        "position": {
+            "type": "absolute",
+            "x": 100,
+            "y": 200
+        },
+        "font": {
+        "family": "Montserrat-Black.ttf",
+        "color": "#8C0000"
+    },
+    "size": {
+        "width": 100,
+        "height": 50
+    },
+        "opacity": 1
+    }
+
+    ]
+        
+    
+}

@@ -1,4 +1,4 @@
-from PIL import Image, ImageDraw, ImageFont, ImageColor
+from PIL import Image, ImageDraw, ImageFont, ImageColor, ImageEnhance
 import requests
 import io
 import json
@@ -7,6 +7,23 @@ import uvicorn
 from fastapi import FastAPI, Request
 from fastapi.responses import FileResponse, Response
 app = FastAPI()
+
+
+
+def ReduceOpacity(im, opacity):
+    """
+    Returns an image with reduced opacity.
+    Taken from http://aspn.activestate.com/ASPN/Cookbook/Python/Recipe/362879
+    """
+    assert opacity >= 0 and opacity <= 1
+    if im.mode != 'RGBA':
+        im = im.convert('RGBA')
+    else:
+        im = im.copy()
+    alpha = im.split()[3]
+    alpha = ImageEnhance.Brightness(alpha).enhance(opacity)
+    im.putalpha(alpha)
+    return im
 
 class Template:
     def __init__(self, template):
@@ -42,21 +59,23 @@ class Template:
         if self.template['name'] not in kwagrs:
             raise Exception(f"Missing {self.template['name']}")
         if self.template['type'] == 'image':
-            background = Image.open(io.BytesIO(requests.get(kwagrs[self.template['name']]).content))
+            background = Image.open(io.BytesIO(requests.get(kwagrs[self.template['name']]).content)).convert("RGBA")
             print("Hello")
             background = background.resize((self.template['size']['width'], self.template['size']['height']))
         if self.template['type'] == 'solid':
-            background = Image.new(mode='RGB', size=(self.template['size']['width'], self.template['size']['height']), color=ImageColor.getrgb(f"#{kwagrs[self.template['name']]}"))
+            background = Image.new(mode='RGBA', size=(self.template['size']['width'], self.template['size']['height']), color=ImageColor.getrgb(f"#{kwagrs[self.template['name']]}"))
         for element in self.template['elements']:
             if element['name'] not in kwagrs:
                 raise Exception(f"Missing {element['name']}")
             # Render text
+            element['opacity'] = element['opacity'] if element["opacity"] != None else 1
             if element['type'] == 'text':
+                img_text = Image.new("RGBA", background.size, (255,255,255,0))
                 if f'{element["name"]}_color' in kwagrs:
                     element['font']['color'] = '#' + kwagrs[f'{element["name"]}_color']
                 content: str = kwagrs[element['name']]
                 font = ImageFont.truetype(font='fonts/' + element['font']['family'], size=element['font']['size'])
-                draw = ImageDraw.Draw(background)
+                draw = ImageDraw.Draw(img_text)
                 x, y, w, d = self.calcXYText(element=element, content=content, font=font)
                 if w > self.width:
                     contents = content.split(" ")
@@ -68,28 +87,62 @@ class Template:
                             index -= 1
                         else:
                             right = " ".join(contents[index:])
-                            draw.text(xy=(x, y), text=left, font=font, fill=ImageColor.getrgb(element['font']['color']))
-                            draw.text(xy=(x, y + d), text=right, font=font, fill=ImageColor.getrgb(element['font']['color']))
+                            draw.text(xy=(x, y), text=left, font=font, fill=ImageColor.getrgb(element['font']['color']) + (int(element['opacity'] * 255),))
+                            draw.text(xy=(x, y + d), text=right, font=font, fill=ImageColor.getrgb(element['font']['color']) + (int(element['opacity'] * 255),))
+                            background = Image.alpha_composite(background, img_text)
                             break
                 else:
-                    draw.text(xy=(x, y), text=content, font=font, fill=ImageColor.getrgb(element['font']['color']))
+                    draw.text(xy=(x, y), text=content, font=font, fill=ImageColor.getrgb(element['font']['color']) + (int(element['opacity'] * 255),))
+                    background = Image.alpha_composite(background, img_text)
             # Render image
             if element['type'] == 'image':
                 url = kwagrs[element['name']]
-                image = Image.open(io.BytesIO(requests.get(url).content))
+                image = Image.open(io.BytesIO(requests.get(url).content)).convert("RGBA")
                 image = image.resize((element['size']['width'], element['size']['height']))
                 x, y = self.calcXY(element=element)
-                background.paste(image, (x, y))
+                # new_image = Image.new("RGBA", image.size)
+                # opacity = int(255 * element['opacity'])  
+                overlay_image = Image.new("RGBA", background.size)
+                overlay_image.paste(image, (x, y))
+                overlay_opacity = element['opacity']  # Adjust this value as needed for the desired overlay opacity
+
+                # Create a copy of the overlay image with adjusted opacity
+                overlay_with_opacity = Image.new("RGBA", overlay_image.size)
+                for x in range(overlay_image.width):
+                    for y in range(overlay_image.height):
+                        r, g, b, a = overlay_image.getpixel((x, y))
+                        overlay_with_opacity.putpixel((x, y), (r, g, b, int(a * overlay_opacity)))
+                # temp_image = temp_image.resize(temp_image.size, Image.ANTIALIAS)
+                # # Create a new alpha channel with the specified opacity
+                # alpha = Image.new("L", image.size, opacity)
+                # image.putalpha(int(element['opacity'] * 255))
+                # image = ReduceOpacity(image, element['opacity'])
+                # print(int(element['opacity'] * 255))
+
+                # Combine the color channels of the original image with the new alpha channel
+                # image = Image.alpha_composite(new_image, Image.merge("RGBA", image.split()[:-1] + (alpha,)))
+                # background.paste(image, (x, y))
+                background = Image.alpha_composite(background, overlay_with_opacity)
             # Render image with remove background
             if element['type'] == 'remove-background':
                 url = kwagrs[element['name']]
-                image = Image.open(io.BytesIO(requests.get(url).content))
+                image = Image.open(io.BytesIO(requests.get(url).content)).convert("RGBA")
                 image = image.resize((element['size']['width'], element['size']['height']))
                 remove = RemoveBackground('u2net')
                 remove.load_session()
                 x, y = self.calcXY(element=element)
                 image = remove.remove(image=image)
-                background.paste(image, (x, y), image)
+                overlay_image = Image.new("RGBA", background.size)
+                overlay_image.paste(image, (x, y))
+                overlay_opacity = element['opacity']  # Adjust this value as needed for the desired overlay opacity
+
+                # Create a copy of the overlay image with adjusted opacity
+                overlay_with_opacity = Image.new("RGBA", overlay_image.size)
+                for x in range(overlay_image.width):
+                    for y in range(overlay_image.height):
+                        r, g, b, a = overlay_image.getpixel((x, y))
+                        overlay_with_opacity.putpixel((x, y), (r, g, b, int(a * overlay_opacity)))
+                background = Image.alpha_composite(background, overlay_with_opacity)
         return background
                 
 class RemoveBackground:
@@ -124,7 +177,8 @@ def get(request: Request):
         template = Template(params['template'])
         image = template.render(params)
         imageByte = io.BytesIO()
-        image.save(imageByte, format='PNG')
+        image.save(imageByte, format='WebP', quality=85, lossless=False)
+        # image.save(imageByte, format='PNG')
         return Response(imageByte.getvalue())
     except Exception as e:
         return Response(str(e))
