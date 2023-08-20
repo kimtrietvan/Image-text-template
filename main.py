@@ -186,7 +186,7 @@ def get(request: Request):
 
 
 if __name__ == '__main__':
-    uvicorn.run("main:app", host='0.0.0.0', port=80, reload=True)
+    uvicorn.run("main:app", host='0.0.0.0', port=80)
 
 # def main(url: str, title_text: str | None = '') -> None:
 #     background = Image.open(io.BytesIO(requests.get(url=url, stream=True).content))
