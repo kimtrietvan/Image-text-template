@@ -178,8 +178,9 @@ def get(request: Request):
         image = template.render(params)
         imageByte = io.BytesIO()
         image.save(imageByte, format='WebP', quality=85, lossless=False)
+        headers = {"Content-Disposition": f'''inline; filename="{params['name'] if 'name' in params else "image"}.webp"'''}
         # image.save(imageByte, format='PNG')
-        return Response(imageByte.getvalue())
+        return Response(imageByte.getvalue(), headers=headers)
     # except Exception as e:
     #     return Response(str(e))
 
