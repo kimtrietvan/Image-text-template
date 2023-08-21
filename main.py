@@ -68,7 +68,7 @@ class Template:
             if element['name'] not in kwagrs:
                 raise Exception(f"Missing {element['name']}")
             # Render text
-            element['opacity'] = element['opacity'] if element["opacity"] != None else 1
+            element['opacity'] = element['opacity'] if 'opacity' in element else 1
             if element['type'] == 'text':
                 img_text = Image.new("RGBA", background.size, (255,255,255,0))
                 if f'{element["name"]}_color' in kwagrs:
@@ -172,7 +172,7 @@ if __name__ == '__main__':
 
 @app.get('/image.png')
 def get(request: Request):
-    try:
+    # try:
         params = request.query_params
         template = Template(params['template'])
         image = template.render(params)
@@ -180,13 +180,13 @@ def get(request: Request):
         image.save(imageByte, format='WebP', quality=85, lossless=False)
         # image.save(imageByte, format='PNG')
         return Response(imageByte.getvalue())
-    except Exception as e:
-        return Response(str(e))
+    # except Exception as e:
+    #     return Response(str(e))
 
 
 
 if __name__ == '__main__':
-    uvicorn.run("main:app", host='0.0.0.0', port=80)
+    uvicorn.run("main:app", host='0.0.0.0', port=80, reload=True)
 
 # def main(url: str, title_text: str | None = '') -> None:
 #     background = Image.open(io.BytesIO(requests.get(url=url, stream=True).content))

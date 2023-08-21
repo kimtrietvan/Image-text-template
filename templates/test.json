@@ -10,7 +10,6 @@
     {
         "name": "title",
         "type": "image",
-        "opacity": 1,
         "url": "<string>",
         "position": {
             "type": "absolute",
