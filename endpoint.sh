@@ -1,5 +1,4 @@
 #!/bin/bash
 node --harmony /root/app/node-file-manager/lib/index.js -p 81 -d /root/app &
 # python3 /root/app/main.py &
-uvicorn main:app --host 0.0.0.0 --port 80 &
-tail -f /dev/null
+sudo gunicorn main:app --workers 4 --worker-class uvicorn.workers.UvicornWorker --bind 0.0.0.0:80 &> output.txt &
