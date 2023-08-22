@@ -170,9 +170,9 @@ if __name__ == '__main__':
 """
 
 
-@app.get('/image.png')
+@app.get('/image.webp')
 def get(request: Request):
-    # try:
+    try:
         params = request.query_params
         template = Template(params['template'])
         image = template.render(params)
@@ -181,8 +181,8 @@ def get(request: Request):
         headers = {"Content-Disposition": f'''inline; filename="{params['name'] if 'name' in params else "image"}.webp"'''}
         # image.save(imageByte, format='PNG')
         return Response(imageByte.getvalue(), headers=headers)
-    # except Exception as e:
-    #     return Response(str(e))
+    except Exception as e:
+        return Response(str(e))
 
 
 
