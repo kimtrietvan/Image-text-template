@@ -1,0 +1,27 @@
+name: Deploy and Restart Service
+
+on:
+  push:
+    branches:
+      - main
+
+jobs:
+  deploy_and_restart:
+    runs-on: ubuntu-latest
+
+    steps:
+    - name: Check Out Repository
+      uses: actions/checkout@v2
+
+    - name: Deploy Code to Server
+      uses: appleboy/ssh-action@master
+      with:
+        host: ${{ secrets.IP }}
+        username: dinhtruong
+        key: ${{ secrets.PRIVKEY }}
+        port: 22
+        script: |
+          cd /home/dinhtruong/Image-text-template
+          git pull origin main
+          sudo systemctl restart images-tet.service
+          sudo systemctl restart node-file-manager.service
