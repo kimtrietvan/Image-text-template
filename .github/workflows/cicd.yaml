@@ -25,3 +25,6 @@ jobs:
           git pull origin main
           sudo systemctl restart images-tet.service
           sudo systemctl restart node-file-manager.service
+          sleep 5
+          sudo systemctl status images-tet.service
+          sudo systemctl status node-file-manager.service
